@@ -151,22 +151,19 @@
         this.loaded = true
         this.pushTopicBtn('Face Mask')
     },
-    mounted () {
-    },
-    computed: {
-    },
     methods: {
         test(){
-            var weekdays = [ "日", "月", "火", "水", "木", "金", "土" ];
-            var today = new Date();
+            const weekdays = [ "日", "月", "火", "水", "木", "金", "土" ];
+            const today = new Date();
             console.log(today.getDay())
-            var out = "今日は "+ (today.getMonth() + 1) + " 月の\n";
+            let out = "今日は "+ (today.getMonth() + 1) + " 月の\n";
             out += "第" + Math.floor((today.getDate() + 6 ) / 7) + weekdays[today.getDay()] + "曜日\n";
             out += "第" + Math.floor((today.getDate() - today.getDay() + 12 ) / 7) + "週目\n";
             alert (out);
         },
         getCountData(val){
-            var count = []
+            let count = []
+            count = []
             for(const elem of val){
                 count.push(elem.count)
             }
