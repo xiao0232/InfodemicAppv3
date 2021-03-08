@@ -1,7 +1,7 @@
 <template>
   <div class="small">
-      <v-btn @click="test()">TEST</v-btn>
-    <h1>Data about {{topic}}</h1>
+      <!-- <v-btn @click="test()">TEST</v-btn> -->
+    <h2>Data about {{$store.state.topic}}</h2>
     <div class="topicBtn">
         <v-btn @click="pushTopicBtn('Face Mask')">Face Mask</v-btn>
         <v-btn @click="pushTopicBtn('Vaccine')">Vaccine</v-btn>
@@ -152,14 +152,20 @@
         this.pushTopicBtn('Face Mask')
     },
     methods: {
-        test(){
-            const weekdays = [ "日", "月", "火", "水", "木", "金", "土" ];
-            const today = new Date();
-            console.log(today.getDay())
-            let out = "今日は "+ (today.getMonth() + 1) + " 月の\n";
-            out += "第" + Math.floor((today.getDate() + 6 ) / 7) + weekdays[today.getDay()] + "曜日\n";
-            out += "第" + Math.floor((today.getDate() - today.getDay() + 12 ) / 7) + "週目\n";
-            alert (out);
+        // test(){
+        //     const weekdays = [ "日", "月", "火", "水", "木", "金", "土" ];
+        //     const today = new Date();
+        //     console.log(today.getDay())
+        //     let out = "今日は "+ (today.getMonth() + 1) + " 月の\n";
+        //     out += "第" + Math.floor((today.getDate() + 6 ) / 7) + weekdays[today.getDay()] + "曜日\n";
+        //     out += "第" + Math.floor((today.getDate() - today.getDay() + 12 ) / 7) + "週目\n";
+        //     alert (out);
+        // },
+        setMonth(val){
+            this.$store.commit('setMonth', val)
+        },
+        setTopic(val){
+            this.$store.commit('setTopic', val)
         },
         getCountData(val){
             let count = []
@@ -214,21 +220,22 @@
                 case 'Face Mask':
                     this.topicMonthData = this.maskMonthData
                     this.topicDayData = this.maskDayData
-                    console.log('Face Mask')
+                    // console.log('Face Mask')
                     break;
                 case 'Vaccine':
                     this.topicMonthData = this.vaccineMonthData
                     this.topicDayData = this.vaccineDayData
-                    console.log('Vaccine')
+                    // console.log('Vaccine')
                     break;
                 case 'Yahoo!News':
                     this.topicMonthData = this.yahooMonthData
                     this.topicDayData = this.yahooDayData
-                    console.log('Yahoo!News')
+                    // console.log('Yahoo!News')
                     break;
                 default:
                 window.alert('error about pushTopicBtn()')
           }
+          this.setTopic(val)
           this.topic = val
           this.pushDateBtn(this.date)
       },
@@ -295,6 +302,7 @@
                         this.dayRange.push(data.date.substring(6, 8))
                     }
                 })
+                this.setMonth(this.selectMonth)
                 this.fillData()
             }
         },
@@ -308,7 +316,7 @@
 </script>
 
 <style>
-    h1{
+    h2{
         text-align: center;
     }
     .topicBtn{
@@ -319,6 +327,7 @@
     }
     .small {
         max-width: 640px;
-        margin:  150px auto;
+        margin: auto;
+        /* margin:  150px auto; */
     }
 </style>
