@@ -24,6 +24,7 @@ export default {
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP&display=swap');
 .v-application{
+  margin: 0 auto; 
   width: 100%;
   max-width: 640px;
   background-color: #061a2b !important;
@@ -31,5 +32,8 @@ export default {
 }
 *{
   color: #fafafa !important;
+}
+body{
+  background: #061a2b;
 }
 </style>
