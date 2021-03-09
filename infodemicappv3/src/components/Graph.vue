@@ -2,14 +2,14 @@
   <div class="small">
       <!-- <v-btn @click="test()">TEST</v-btn> -->
     <h2>Data about {{$store.state.topic}}</h2>
-    <div class="topicBtn">
-        <v-btn @click="pushTopicBtn('Face Mask')">Face Mask</v-btn>
-        <v-btn @click="pushTopicBtn('Vaccine')">Vaccine</v-btn>
-        <v-btn @click="pushTopicBtn('Yahoo!News')">Yahoo!News</v-btn>
+    <div class="topicBtns">
+        <v-btn @click="pushTopicBtn('Face Mask')" class="topicBtn" color="#AAAAAA">Face Mask</v-btn>
+        <v-btn @click="pushTopicBtn('Vaccine')" class="topicBtn" color="#AAAAAA">Vaccine</v-btn>
+        <v-btn @click="pushTopicBtn('Yahoo!News')" class="topicBtn" color="#AAAAAA">Yahoo!News</v-btn>
     </div>
     <div class="dateBtn">
-        <v-btn @click="pushDateBtn('year')">year</v-btn>
-        <v-btn @click="pushDateBtn('month')">month</v-btn>
+        <v-btn @click="pushDateBtn('year')" color="#AAAAAA">year</v-btn>
+        <v-btn @click="pushDateBtn('month')" color="#AAAAAA">month</v-btn>
         <!-- <v-btn @click="pushDateBtn('day')">day</v-btn> -->
     </div>
     <div v-if="loaded == false">
@@ -29,7 +29,9 @@
                 </v-col> -->
             </v-row>
         </v-container>
-        <line-chart v-if="loaded" :chart-data="datacollection"></line-chart>
+        <div class="charts">
+            <line-chart v-if="loaded" :chart-data="datacollection"></line-chart>
+        </div>
     </div>
   </div>
 </template>
@@ -55,7 +57,7 @@
             topicDayData: [],
             topic: 'Face Mask',
             date: 'year',
-            yearRange: [2020],
+            yearRange: [],
             monthRange: [],
             dayRange: [],
             loaded: false,                                                   //API追加時に使用
@@ -152,15 +154,6 @@
         this.pushTopicBtn('Face Mask')
     },
     methods: {
-        // test(){
-        //     const weekdays = [ "日", "月", "火", "水", "木", "金", "土" ];
-        //     const today = new Date();
-        //     console.log(today.getDay())
-        //     let out = "今日は "+ (today.getMonth() + 1) + " 月の\n";
-        //     out += "第" + Math.floor((today.getDate() + 6 ) / 7) + weekdays[today.getDay()] + "曜日\n";
-        //     out += "第" + Math.floor((today.getDate() - today.getDay() + 12 ) / 7) + "週目\n";
-        //     alert (out);
-        // },
         setMonth(val){
             this.$store.commit('setMonth', val)
         },
@@ -185,13 +178,14 @@
             datasets: [
                 {
                     label: 'total',
-                    backgroundColor: 'lightgrey',
+                    backgroundColor: '#FF7A6B',
                     fill: false,
-                    data: this.graphDataTotal
+                    data: this.graphDataTotal,
+                    borderColor: '#FF7A6B',
                 }, 
                 {
                     label: this.topic,
-                    backgroundColor: 'black',
+                    backgroundColor: '#14FFD4',
                     fill: false,
                     type: 'bar',
                     data: this.graphDataTopic
@@ -319,15 +313,29 @@
     h2{
         text-align: center;
     }
+    .topicBtns{
+        text-align: center;
+    }
     .topicBtn{
         text-align: center;
     }
     .dateBtn{
         text-align: center;
+        /* color: #d72; */
     }
     .small {
         max-width: 640px;
         margin: auto;
         /* margin:  150px auto; */
+    }
+    .charts{
+        position: relative;
+        margin: 0 auto;
+        width: 90%;
+        max-width: 640px;
+        background-color: #242a3c;
+    }
+    .v-list-item__title {
+        color: black !important;
     }
 </style>

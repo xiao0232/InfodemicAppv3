@@ -80,8 +80,10 @@ export default {
     .tweet{
         position: relative;
         margin: 0 auto;
-        width: 100%;
+        margin-top: 60px;
+        width: 90%;
         max-width: 640px;
+        background-color: #242a3c;
     }
     .tweetList{
         position: relative;
@@ -107,5 +109,8 @@ export default {
     .topicHr{
         margin: auto;
         width: 90%;
+    }
+    hr{
+        margin-bottom: 15px;
     }
 </style>

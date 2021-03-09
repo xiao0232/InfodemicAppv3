@@ -20,3 +20,16 @@ export default {
   }),
 };
 </script>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP&display=swap');
+.v-application{
+  width: 100%;
+  max-width: 640px;
+  background-color: #061a2b !important;
+  font-family: 'Noto Sans JP', sans-serif !important; 
+}
+*{
+  color: #fafafa !important;
+}
+</style>

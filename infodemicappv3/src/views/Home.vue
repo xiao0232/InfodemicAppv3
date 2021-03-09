@@ -4,9 +4,7 @@
       Infodemic
     </h1>
     <graph></graph>
-    <div class="tweetComponent">
-      <tweet></tweet>
-    </div>
+    <tweet></tweet>
   </div>
 </template>
 
