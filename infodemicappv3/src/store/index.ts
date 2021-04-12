@@ -5,6 +5,7 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
+    topics: ['Face Mask', 'Covid-19', 'Vaccine', 'Yahoo!News'], 
     topic: 'Face Mask',
     month: 2,
   },

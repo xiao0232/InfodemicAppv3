@@ -7,9 +7,9 @@
         <v-btn @click="pushTopicBtn('Vaccine')" class="topicBtn" color="#AAAAAA">Vaccine</v-btn>
         <v-btn @click="pushTopicBtn('Yahoo!News')" class="topicBtn" color="#AAAAAA">Yahoo!News</v-btn>
     </div>
-    <div class="dateBtn">
-        <v-btn @click="pushDateBtn('year')" color="#AAAAAA">year</v-btn>
-        <v-btn @click="pushDateBtn('month')" color="#AAAAAA">month</v-btn>
+    <div class="dateBtns">
+        <v-btn @click="pushDateBtn('year')" color="#AAAAAA" class="dateBtn">year</v-btn>
+        <v-btn @click="pushDateBtn('month')" color="#AAAAAA" class="dateBtn">month</v-btn>
         <!-- <v-btn @click="pushDateBtn('day')">day</v-btn> -->
     </div>
     <div v-if="loaded == false">
@@ -19,10 +19,10 @@
         <v-container class='dateSelect'>
             <v-row align="center">
                 <v-col cols="3">
-                    <v-select :items="yearRange" label="year" outlined v-model="selectYear"></v-select>
+                    <v-select :items="yearRange" label="year" outlined v-model="selectYear" color="#dd7722"></v-select>
                 </v-col>
                 <v-col cols="3">
-                    <v-select :items="this.monthRange.map( str => parseInt(str, 10))" label="month" outlined v-if="dateState >= 2" v-model="selectMonth"></v-select>
+                    <v-select :items="this.monthRange.map( str => parseInt(str, 10))" label="month" outlined v-if="dateState >= 2" v-model="selectMonth" color="#dd7722"></v-select>
                 </v-col>
                 <!-- <v-col cols="3">
                     <v-select :items="dayArgs" label="day" outlined v-if="dateState == 3" v-model="selectDay"></v-select>
@@ -69,6 +69,15 @@
             graphDataTotal: [],
             graphDataTopic: [],
             graphLabel: [],
+            graphTemplateData: {
+                label: '',
+                backgroundColor: '',
+                fill: false,
+                data: [],
+                borderColor: '',
+                type: ''
+            },
+            graphTemplateDatas: []
       }
     },
     async created(){
@@ -154,6 +163,16 @@
         this.pushTopicBtn('Face Mask')
     },
     methods: {
+        makeGraphTemplateData(label, backgroundColor, fill, data, borderColor, type){
+            const graph = this.graphTemplateData
+            graph.label = label
+            graph.backgroundColor = backgroundColor
+            graph.fill = fill
+            graph.data = data
+            graph.borderColor = borderColor
+            graph.type = type
+            this.graphTemplateDatas.push(graph)
+        },
         setMonth(val){
             this.$store.commit('setMonth', val)
         },
@@ -175,62 +194,29 @@
       fillData () {
         this.datacollection = {
             labels: this.graphLabel,
-            datasets: [
-                {
-                    label: 'total',
-                    backgroundColor: '#FF7A6B',
-                    fill: false,
-                    data: this.graphDataTotal,
-                    borderColor: '#FF7A6B',
-                }, 
-                {
-                    label: this.topic,
-                    backgroundColor: '#14FFD4',
-                    fill: false,
-                    type: 'bar',
-                    data: this.graphDataTopic
-                }
-            ],
-            options: {
-                scales: {
-                xAxes: [{
-                    scaleLabel: {
-                    display: true,
-                    labelString: this.topic
-                    }
-                }],
-                // yAxes: [{
-                //     ticks: {
-                //     beginAtZero: true,
-                //     stepSize: 10,
-                //     }
-                // }]
-                }
-            }
+            // datasets: [
+            //     {
+            //         label: 'total',
+            //         backgroundColor: '#FF7A6B',
+            //         fill: false,
+            //         data: this.graphDataTotal,
+            //         borderColor: '#FF7A6B',
+            //     }, 
+            //     {
+            //         label: this.topic,
+            //         backgroundColor: '#14FFD4',
+            //         fill: false,
+            //         type: 'bar',
+            //         data: this.graphDataTopic
+            //     }
+            // ]
+            datasets: this.graphTemplateDatas
         }
       },
-      pushTopicBtn(val){
-          switch(val){
-                case 'Face Mask':
-                    this.topicMonthData = this.maskMonthData
-                    this.topicDayData = this.maskDayData
-                    // console.log('Face Mask')
-                    break;
-                case 'Vaccine':
-                    this.topicMonthData = this.vaccineMonthData
-                    this.topicDayData = this.vaccineDayData
-                    // console.log('Vaccine')
-                    break;
-                case 'Yahoo!News':
-                    this.topicMonthData = this.yahooMonthData
-                    this.topicDayData = this.yahooDayData
-                    // console.log('Yahoo!News')
-                    break;
-                default:
-                window.alert('error about pushTopicBtn()')
-          }
-          this.setTopic(val)
-          this.topic = val
+      pushTopicBtn(topic){
+          this.registerTopicData(topic)
+          this.setTopic(topic)
+          this.topic = topic
           this.pushDateBtn(this.date)
       },
       pushDateBtn(val){
@@ -239,25 +225,39 @@
                 this.setData(this.totalMonthData, this.topicMonthData)
                 this.graphLabel = this.monthRange
                 this.dateState = 1
+                this.makeGraphTemplateData('total', '#FF7A6B', false, this.graphDataTotal, '#FF7A6B', 'bar')
                 this.fillData()
                 break;
             case 'month':
-                this.graphDataTotal = this.getCountData(this.totalDayData)
-                this.graphDataTopic = this.getCountData(this.topicDayData)
+                this.setData(this.totalDayData, this.topicDayData)
                 this.graphLabel = this.dayRange
                 this.dateState = 2
+                this.makeGraphTemplateData('total', '#FF7A6B', false, this.graphDataTotal, '#FF7A6B', 'bar')
                 this.fillData()
                 break;
-            // case 'day':
-            //     this.setData(this.totalDayData, this.topicDayData)
-            //     this.graphLabel = this.selectDay
-            //     this.dateState = 3
-            //     break;
             default:
                 window.alert('error about pushDateBtn()')
           }
           this.date = val
           this.fillData()
+      },
+      registerTopicData(topic){
+          switch(topic){
+                case 'Face Mask':
+                    this.topicMonthData = this.maskMonthData
+                    this.topicDayData = this.maskDayData
+                    break;
+                case 'Vaccine':
+                    this.topicMonthData = this.vaccineMonthData
+                    this.topicDayData = this.vaccineDayData
+                    break;
+                case 'Yahoo!News':
+                    this.topicMonthData = this.yahooMonthData
+                    this.topicDayData = this.yahooDayData
+                    break;
+                default:
+                window.alert('error about pushTopicBtn()')
+          }
       }
     },
     watch: {
@@ -315,13 +315,21 @@
     }
     .topicBtns{
         text-align: center;
+        margin-top: 18px;
     }
     .topicBtn{
         text-align: center;
+        margin-left: 10px;
+        margin-right: 10px;
+    }
+    .dateBtns{
+        text-align: center;
+        margin-top: 18px;
     }
     .dateBtn{
         text-align: center;
-        /* color: #d72; */
+        margin-left: 10px;
+        margin-right: 10px;
     }
     .small {
         max-width: 640px;

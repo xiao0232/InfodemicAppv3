@@ -1,6 +1,21 @@
 <template>
   <v-app>
     <v-main>
+      <v-app-bar color="#242a3c">
+        <v-app-bar-nav-icon @click="menue = !menue"></v-app-bar-nav-icon>
+        <v-toolbar-title>
+          Infodemic App demo
+        </v-toolbar-title>
+      </v-app-bar>
+      <v-navigation-drawer v-model="menue" fixed temporary>
+        <v-list nav dense>
+          <v-list-item-group>
+            <v-list-item>
+              <v-list-item-title>HOME</v-list-item-title>
+            </v-list-item>
+          </v-list-item-group>
+        </v-list>
+      </v-navigation-drawer>
       <router-view></router-view>
     </v-main>
   </v-app>
@@ -16,7 +31,7 @@ export default {
   },
 
   data: () => ({
-    //
+    menue: false
   }),
 };
 </script>
@@ -31,7 +46,7 @@ export default {
   font-family: 'Noto Sans JP', sans-serif !important; 
 }
 *{
-  color: #fafafa !important;
+  /* color: #fafafa !important; */
 }
 body{
   background: #061a2b;
