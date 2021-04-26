@@ -1,22 +1,10 @@
 <template>
   <div class="small">
-      <!-- <v-btn @click="test()">TEST</v-btn> -->
-    <h2>Data about {{$store.state.topic}}</h2>
-    <div class="topicBtns">
-        <v-btn @click="pushTopicBtn('Face Mask')" class="topicBtn" color="#AAAAAA">Face Mask</v-btn>
-        <v-btn @click="pushTopicBtn('Vaccine')" class="topicBtn" color="#AAAAAA">Vaccine</v-btn>
-        <v-btn @click="pushTopicBtn('Yahoo!News')" class="topicBtn" color="#AAAAAA">Yahoo!News</v-btn>
-    </div>
-    <div class="dateBtns">
-        <v-btn @click="pushDateBtn('year')" color="#AAAAAA" class="dateBtn">year</v-btn>
-        <v-btn @click="pushDateBtn('month')" color="#AAAAAA" class="dateBtn">month</v-btn>
-        <!-- <v-btn @click="pushDateBtn('day')">day</v-btn> -->
-    </div>
     <div v-if="loaded == false">
         <v-progress-circular indeterminate color="black"></v-progress-circular>
     </div>
     <div v-if="loaded == true">
-        <v-container class='dateSelect'>
+        <!-- <v-container class='dateSelect'>
             <v-row align="center">
                 <v-col cols="3">
                     <v-select :items="yearRange" label="year" outlined v-model="selectYear" color="#dd7722"></v-select>
@@ -24,11 +12,8 @@
                 <v-col cols="3">
                     <v-select :items="this.monthRange.map( str => parseInt(str, 10))" label="month" outlined v-if="dateState >= 2" v-model="selectMonth" color="#dd7722"></v-select>
                 </v-col>
-                <!-- <v-col cols="3">
-                    <v-select :items="dayArgs" label="day" outlined v-if="dateState == 3" v-model="selectDay"></v-select>
-                </v-col> -->
             </v-row>
-        </v-container>
+        </v-container> -->
         <div class="charts">
             <line-chart v-if="loaded" :chart-data="datacollection"></line-chart>
         </div>
@@ -77,7 +62,8 @@
                 borderColor: '',
                 type: ''
             },
-            graphTemplateDatas: []
+            graphTemplateDatas: [],
+            showDateState: this.$store.state.showDate
       }
     },
     async created(){
@@ -155,14 +141,21 @@
                 this.monthRange.push(data.month.substring(4, 6))
             }
         })
-        // this.monthArgs = this.monthArgs.map( str => parseInt(str, 10))
         this.graphLabel = this.monthRange.map( str => parseInt(str, 10))
         this.topicMonthData = this.maskMonthData
         this.topicDayData = this.maskDayData
         this.loaded = true
         this.pushTopicBtn('Face Mask')
     },
+    mounted() {
+        this.$store.watch(() => this.$store.getters.getShowDate,
+            newValue => this.pushDateBtn(newValue)
+        );
+    },  
     methods: {
+        test(){
+            console.log('test test')
+        },
         makeGraphTemplateData(label, backgroundColor, fill, data, borderColor, type){
             const graph = this.graphTemplateData
             graph.label = label
@@ -304,7 +297,7 @@
             handler(){
                 this.fillData()
             }
-        }
+        },
     }
   }
 </script>

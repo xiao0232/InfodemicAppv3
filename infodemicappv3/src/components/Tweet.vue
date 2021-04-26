@@ -82,6 +82,9 @@ export default {
     },
     mounted() {
         this.watchMonthChange()
+        this.$store.watch(() => this.$store.getters.getShowDate,
+            newValue => console.log('change to ', newValue)
+        );
     },
 }
 </script>
