@@ -50,9 +50,9 @@ export default {
                         type: "linear",
                         position: "right",
                         ticks: {
-                            max: 100000,
+                            max: 400000,
                             min: 0,
-                            stepSize: 20000
+                            stepSize: 80000
                         }
                     }]
                 }
@@ -84,10 +84,22 @@ export default {
             complexChartOption: {}
         }
     },
-    created() {
-        this.complexChartOption = this.yearChartOption
+    async created() {
         this.barChartData = this.yearChartData
-        this.load = true
+        this.load = false
+        const ChartData = JSON.parse(JSON.stringify(this.barChartData))
+        this.barChartData = this.yearChartData
+        this.complexChartOption = this.yearChartOption
+        await this.axios
+            .get(encodeURI('https://mongo-fastapi01.herokuapp.com/api/count-hashtags/months/Covid-19'))
+            .then((response) => {
+                ChartData.datasets.push(this.makeGraphTemplateData('Covid-19', '#14FFD4', false, this.makeGraphData(response.data), '#14FFD4', 'line', 'y-axis-2'))
+                this.chart = ChartData
+                this.load = true
+            })
+            .catch((e) => {
+                console.log(e)
+            })
     },
     mounted() {
         this.$store.watch((state, getters) => getters.getChips,

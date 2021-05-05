@@ -1,6 +1,6 @@
 <template>
-  <v-app>
-    <v-app-bar color="#242a3c">
+  <v-app >
+    <v-app-bar color="#242a3c" class="appBar">
       <v-app-bar-nav-icon @click="menue = !menue"></v-app-bar-nav-icon>
       <v-toolbar-title>
         Infodemic App
@@ -50,5 +50,8 @@ export default {
 }
 body{
   background: #061a2b;
+}
+.appBar{
+  max-height: 56px;
 }
 </style>
