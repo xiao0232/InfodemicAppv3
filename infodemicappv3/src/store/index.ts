@@ -9,7 +9,7 @@ export default new Vuex.Store({
     // monthRange: ['2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'],
     monthRange: ['2'],
     chips: [],
-    topic: 'Face Mask',
+    topic: 'Covid-19',
     month: 2,
     yearRange: ['2020'],
     showDate: 'year',
