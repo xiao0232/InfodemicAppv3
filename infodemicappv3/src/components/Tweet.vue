@@ -40,7 +40,6 @@ export default {
             .get('https://mongo-fastapi01.herokuapp.com/api/get-tweets/?n=30&sdate=20200215')
             .then((response) => {
                 this.allTweetData = response.data
-                console.log(response.data)
             })
             .catch((e) => {
                 console.log(e)
@@ -71,7 +70,7 @@ export default {
             );
         },
         getPageLength(){
-            return this.allTweetData.length / 20 + 1
+            return Math.ceil(this.allTweetData.length / 20)
         },
         getPageStart(val){
             return (val - 1) * 20

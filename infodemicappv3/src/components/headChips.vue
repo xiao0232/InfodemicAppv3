@@ -1,6 +1,6 @@
 <template>
     <div id="app">
-        <v-container>
+        <v-container class="main">
             <v-row>
                 <v-col>
                     <v-combobox v-model="chips" :items="items" chips clearable label="Select Topic" multiple solo class="topics">
@@ -18,7 +18,7 @@
                     <v-select :items="yearRange" outlined v-model="selectYear" background-color="white"></v-select>
                 </v-col>
                 <v-col v-if="this.$store.state.showDate == 'month'">
-                    <v-select :items="yearRange" outlined v-model="selectYear" background-color="white"></v-select>
+                    <v-select :items="monthRange" outlined v-model="selectMonth" background-color="white"></v-select>
                 </v-col>
             </v-row>
         </v-container>
@@ -39,38 +39,38 @@ export default {
             selectYear: '',
             yearRange: ['2020'],
             selectMonth: '',
-            monthRange: ['2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
+            monthRange: ['2']
         }
+    },
+    created() {
+        this.selectRange = this.$store.state.showDate
+        this.selectYear = this.$store.state.yearRange
     },
     methods: {
         getUrl (...args) {
-            const result = args
-                            .join('/')
-                            // .replace(/[\/]+/g, '/')
-                            // .replace(/^(.+):\//, '$1://')
-                            // .replace(/^file:/, 'file:/')
-                            // .replace(/\/(\?|&|#[^!])/g, '$1')
-                            // .replace(/\?/g, '&')
-                            // .replace('&', '?');
-
+            const result = args.join('/')
             return result
         },
-        async getMonthData(val){
-            await this.axios
-            .get(this.getUrl('https://mongo-fastapi01.herokuapp.com/api/count-hashtags/months', val))
-            .then((response) => {
-                console.log(response.data)
-                return response.data
-            })
-            .catch((e) => {
-                console.log(e)
-            })
+        async getMonthData(val) {
+            if (val.length == 0) {
+                this.$store.commit('setMonthTotalTagDatas', {})
+            } else {
+                await this.axios
+                .get(encodeURI(this.getUrl('https://mongo-fastapi01.herokuapp.com/api/count-hashtags/months', val)))
+                .then((response) => {
+                    // this.$store.commit('setMonthTotalTagDatas', response.data)
+                    return response.data
+                })
+                .catch((e) => {
+                    console.log(e)
+                })
+            }
         },
-        async getDateData(val){
+        async getDateData(val) {
             await this.axios
-            .get(this.getUrl('https://mongo-fastapi01.herokuapp.com/api/count-hashtags/dates' ,val))
+            .get(encodeURI(this.getUrl('https://mongo-fastapi01.herokuapp.com/api/count-hashtags/dates' ,val)))
             .then((response) => {
-                console.log(response.data)
+                // this.$store.commit('setDayTotalTagDatas', response.data)
                 return response.data
             })
             .catch((e) => {
@@ -85,9 +85,10 @@ export default {
             this.$store.commit('setChips', val)
         },
         getTotalTagDatas(val){
-            console.log(val)
-            if (val.length == 0) return 
             let tagstring = ''
+            if (val.length == 0) {
+                return
+            }
             for (let i = 0, length = val.length; i < length; i++){
                 if (i === (length - 1)) {
                     tagstring += val[i]
@@ -95,15 +96,18 @@ export default {
                     tagstring += val[i] + '|'
                 }
             }
-            this.$store.commit('setMonthTotalTagDatas', this.getMonthData(tagstring))
-            this.$store.commit('setDayTotalTagDatas', this.getDateData(tagstring))
-            console.log(tagstring)
+            if(this.$store.state.showDate == 'year'){
+                this.getMonthData(tagstring)
+            } else if (this.$store.state.showDate == 'month') {
+                this.getDateData(tagstring)
+            } else {
+                console.log('error')
+            }
         }
     },
     watch: {
         chips: {
             handler() {
-                console.log(this.chips)
                 this.setChips(this.chips)
                 this.getTotalTagDatas(this.$store.state.chips)
             }
@@ -111,7 +115,6 @@ export default {
         selectRange: {
             handler() {
                 this.$store.commit('setShowDate', this.selectRange)
-                console.log('changed')
             }
         }
     }
@@ -119,6 +122,9 @@ export default {
 </script>
 
 <style scoped>
+    .main{
+        max-width: 640px;
+    }
     .topics{
         width: 75%;
     }

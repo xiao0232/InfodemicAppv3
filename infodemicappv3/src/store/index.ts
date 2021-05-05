@@ -5,13 +5,14 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
-    topics: ['FaceMask', 'Covid-19', 'Vaccine', 'Yahoo!News'], 
+    topics: ['FaceMask', 'Covid-19', 'vaccine', 'Yahoo!News'], 
+    // monthRange: ['2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'],
+    monthRange: ['2'],
     chips: [],
     topic: 'Face Mask',
     month: 2,
-    monthTotalTagDatas: {},
-    dayTotalTagDatas: {},
-    showDate: 'year'
+    yearRange: ['2020'],
+    showDate: 'year',
   },
   mutations: {
     setTopic(state, val){
@@ -23,12 +24,6 @@ export default new Vuex.Store({
     setChips(state, val){
       state.chips = val
     },
-    setMonthTotalTagDatas(state, val){
-      state.monthTotalTagDatas = val
-    },
-    setDayTotalTagDatas(state, val){
-      state.dayTotalTagDatas = val
-    },
     setShowDate(state, val){
       state.showDate = val
     }
@@ -37,7 +32,8 @@ export default new Vuex.Store({
   },
   getters: {
     getShowDate: state => state.showDate,
-    getMonth: state => state.month
+    getMonth: state => state.month,
+    getChips: state => state.chips,
   },
   modules: {
   }
