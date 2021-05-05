@@ -1,341 +1,213 @@
 <template>
-  <div class="small">
-      <!-- <v-btn @click="test()">TEST</v-btn> -->
-    <h2>Data about {{$store.state.topic}}</h2>
-    <div class="topicBtns">
-        <v-btn @click="pushTopicBtn('Face Mask')" class="topicBtn" color="#AAAAAA">Face Mask</v-btn>
-        <v-btn @click="pushTopicBtn('Vaccine')" class="topicBtn" color="#AAAAAA">Vaccine</v-btn>
-        <v-btn @click="pushTopicBtn('Yahoo!News')" class="topicBtn" color="#AAAAAA">Yahoo!News</v-btn>
+    <div style="width:100%">
+        <line-chart class="container" :chart-data="chart" :options="complexChartOption" v-if="load"></line-chart>
     </div>
-    <div class="dateBtn">
-        <v-btn @click="pushDateBtn('year')" color="#AAAAAA">year</v-btn>
-        <v-btn @click="pushDateBtn('month')" color="#AAAAAA">month</v-btn>
-        <!-- <v-btn @click="pushDateBtn('day')">day</v-btn> -->
-    </div>
-    <div v-if="loaded == false">
-        <v-progress-circular indeterminate color="black"></v-progress-circular>
-    </div>
-    <div v-if="loaded == true">
-        <v-container class='dateSelect'>
-            <v-row align="center">
-                <v-col cols="3">
-                    <v-select :items="yearRange" label="year" outlined v-model="selectYear"></v-select>
-                </v-col>
-                <v-col cols="3">
-                    <v-select :items="this.monthRange.map( str => parseInt(str, 10))" label="month" outlined v-if="dateState >= 2" v-model="selectMonth"></v-select>
-                </v-col>
-                <!-- <v-col cols="3">
-                    <v-select :items="dayArgs" label="day" outlined v-if="dateState == 3" v-model="selectDay"></v-select>
-                </v-col> -->
-            </v-row>
-        </v-container>
-        <div class="charts">
-            <line-chart v-if="loaded" :chart-data="datacollection"></line-chart>
-        </div>
-    </div>
-  </div>
 </template>
 
 <script>
-  import LineChart from './LineChart.js'
+import LineChart from './LineChart.js'
 
-  export default {
+export default {
     components: {
       LineChart
     },
-    data () {
-      return {
-            totalMonthData: [],
-            totalDayData: [],
-            maskMonthData: [],
-            maskDayData: [],
-            vaccineMonthData: [],
-            vaccineDayData: [],
-            yahooMonthData: [],
-            yahooDayData: [],
-            topicMonthData: [],
-            topicDayData: [],
-            topic: 'Face Mask',
-            date: 'year',
-            yearRange: [],
-            monthRange: [],
-            dayRange: [],
-            loaded: false,                                                   //API追加時に使用
-            dateState: 1,
-            selectYear: 2020,
-            selectMonth: 2,
-            selectDay: 21,
-            datacollection: { labels: [], datasets: [] },
-            graphDataTotal: [],
-            graphDataTopic: [],
-            graphLabel: [],
-      }
+    data() {
+        return {
+            load: false,
+            graphTemplateData: {
+                label: '',
+                data: [],
+                fill: true,
+                backgroundColor: '',
+                borderColor: '',
+                type: '',
+                yAxisID: ''
+            },
+            yearChartData: {
+                labels: ['2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'],
+                datasets: []
+            },
+            monthChartData: {
+                labels: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31'],
+                datasets: []
+            },
+            barChartData: {},
+            chart: {},
+            yearChartOption: {
+                responsive: true,
+                scales: {
+                    yAxes: [{
+                        id: "y-axis-1",
+                        type: "linear",
+                        position: "left",
+                        ticks: {
+                            max: 500000,
+                            min: 0,
+                            stepSize: 100000
+                        }
+                    },{
+                        id: "y-axis-2",
+                        type: "linear",
+                        position: "right",
+                        ticks: {
+                            max: 100000,
+                            min: 0,
+                            stepSize: 20000
+                        }
+                    }]
+                }
+            },
+            monthChartOption: {
+                responsive: true,
+                scales: {
+                    yAxes: [{
+                        id: "y-axis-1",
+                        type: "linear",
+                        position: "left",
+                        ticks: {
+                            max: 50000,
+                            min: 0,
+                            stepSize: 10000
+                        }
+                    },{
+                        id: "y-axis-2",
+                        type: "linear",
+                        position: "right",
+                        ticks: {
+                            max: 20000,
+                            min: 0,
+                            stepSize: 4000
+                        }
+                    }]
+                }
+            },
+            complexChartOption: {}
+        }
     },
-    async created(){
-        await this.axios
-        .get('https://mongo-fastapi01.herokuapp.com/api/count-dates')
-        .then((response) => {
-            this.totalDayData = response.data
-        })
-        .catch((e) => {
-            console.log(e)
-        })
-        await this.axios
-        .get('https://mongo-fastapi01.herokuapp.com/api/count-months/')
-        .then((response) => {
-            this.totalMonthData = response.data
-        })
-        .catch((e) => {
-            console.log(e)
-        })
-        await this.axios
-        .get('https://mongo-fastapi01.herokuapp.com/api/count-hashtags/months/マスク')
-        .then((response) => {
-            this.maskMonthData = response.data
-        })
-        .catch((e) => {
-            console.log(e)
-        })
-        await this.axios
-        .get('https://mongo-fastapi01.herokuapp.com/api/count-hashtags/dates/マスク')
-        .then((response) => {
-            this.maskDayData = response.data
-        })
-        .catch((e) => {
-            console.log(e)
-        })
-        await this.axios
-        .get('https://mongo-fastapi01.herokuapp.com/api/count-hashtags/months/ワクチン')
-        .then((response) => {
-            this.vaccineMonthData = response.data
-        })
-        .catch((e) => {
-            console.log(e)
-        })
-        await this.axios
-        .get('https://mongo-fastapi01.herokuapp.com/api/count-hashtags/dates/ワクチン')
-        .then((response) => {
-            this.vaccineDayData = response.data
-        })
-        .catch((e) => {
-            console.log(e)
-        })
-        await this.axios
-        .get('https://mongo-fastapi01.herokuapp.com/api/count-hashtags/months/Yahoo')
-        .then((response) => {
-            this.yahooMonthData = response.data
-        })
-        .catch((e) => {
-            console.log(e)
-        })
-        await this.axios
-        .get('https://mongo-fastapi01.herokuapp.com/api/count-hashtags/dates/Yahoo')
-        .then((response) => {
-            this.yahooDayData = response.data
-        })
-        .catch((e) => {
-            console.log(e)
-        })
-        await this.totalMonthData.filter(data => {
-            if(this.yearRange.includes(data.month.substring(0, 4)) == false){
-                this.yearRange.push(data.month.substring(0, 4))
-            }
-        })
-        await this.totalMonthData.filter(data => {
-            if(this.monthRange.includes(data.month.substring(4, 6)) == false){
-                this.monthRange.push(data.month.substring(4, 6))
-            }
-        })
-        // this.monthArgs = this.monthArgs.map( str => parseInt(str, 10))
-        this.graphLabel = this.monthRange.map( str => parseInt(str, 10))
-        this.topicMonthData = this.maskMonthData
-        this.topicDayData = this.maskDayData
-        this.loaded = true
-        this.pushTopicBtn('Face Mask')
+    created() {
+        this.complexChartOption = this.yearChartOption
+        this.barChartData = this.yearChartData
+        this.load = true
     },
+    mounted() {
+        this.$store.watch((state, getters) => getters.getChips,
+            async () => {
+                if (this.$store.state.showDate == 'year') {
+                    this.barChartData = this.yearChartData
+                    await this.getMonthData()
+                    this.load = true
+                } else if (this.$store.state.showDate == 'month') {
+                    this.barChartData = this.monthChartData
+                    await this.getDateData()
+                    this.load = true
+                }
+            }
+        )
+        this.$store.watch((state, getters) => getters.getShowDate,
+            async () => {
+                if (this.$store.state.showDate == 'year') {
+                    this.barChartData = this.yearChartData
+                    this.complexChartOption = this.yearChartOption
+                    await this.getMonthData()
+                    this.load = true
+                } else if (this.$store.state.showDate == 'month') {
+                    this.barChartData = this.monthChartData
+                    this.complexChartOption = this.monthChartOption
+                    await this.getDateData()
+                    this.load = true
+                }
+            }
+        )
+    }, 
     methods: {
-        setMonth(val){
-            this.$store.commit('setMonth', val)
+        makeGraphTemplateData(label, backgroundColor, fill, data, borderColor, type, yAxisID){
+            const graph = JSON.parse(JSON.stringify(this.graphTemplateData))
+            graph.label = label
+            graph.data = data
+            graph.fill = fill
+            graph.backgroundColor = backgroundColor
+            graph.borderColor = borderColor
+            graph.type = type
+            graph.yAxisID = yAxisID
+            return graph
         },
-        setTopic(val){
-            this.$store.commit('setTopic', val)
-        },
-        getCountData(val){
-            let count = []
-            count = []
+        makeGraphData(val) {
+            const count = []
             for(const elem of val){
                 count.push(elem.count)
             }
             return count
         },
-        setData(totalval, topicval){
-            this.graphDataTotal = this.getCountData(totalval)
-            this.graphDataTopic = this.getCountData(topicval)
+        getUrl (...args) {
+            const result = args.join('/')
+            return result
         },
-      fillData () {
-        this.datacollection = {
-            labels: this.graphLabel,
-            datasets: [
-                {
-                    label: 'total',
-                    backgroundColor: '#FF7A6B',
-                    fill: false,
-                    data: this.graphDataTotal,
-                    borderColor: '#FF7A6B',
-                }, 
-                {
-                    label: this.topic,
-                    backgroundColor: '#14FFD4',
-                    fill: false,
-                    type: 'bar',
-                    data: this.graphDataTopic
-                }
-            ],
-            options: {
-                scales: {
-                xAxes: [{
-                    scaleLabel: {
-                    display: true,
-                    labelString: this.topic
-                    }
-                }],
-                // yAxes: [{
-                //     ticks: {
-                //     beginAtZero: true,
-                //     stepSize: 10,
-                //     }
-                // }]
-                }
-            }
-        }
-      },
-      pushTopicBtn(val){
-          switch(val){
-                case 'Face Mask':
-                    this.topicMonthData = this.maskMonthData
-                    this.topicDayData = this.maskDayData
-                    // console.log('Face Mask')
-                    break;
-                case 'Vaccine':
-                    this.topicMonthData = this.vaccineMonthData
-                    this.topicDayData = this.vaccineDayData
-                    // console.log('Vaccine')
-                    break;
-                case 'Yahoo!News':
-                    this.topicMonthData = this.yahooMonthData
-                    this.topicDayData = this.yahooDayData
-                    // console.log('Yahoo!News')
-                    break;
-                default:
-                window.alert('error about pushTopicBtn()')
-          }
-          this.setTopic(val)
-          this.topic = val
-          this.pushDateBtn(this.date)
-      },
-      pushDateBtn(val){
-          switch(val){
-            case 'year':
-                this.setData(this.totalMonthData, this.topicMonthData)
-                this.graphLabel = this.monthRange
-                this.dateState = 1
-                this.fillData()
-                break;
-            case 'month':
-                this.graphDataTotal = this.getCountData(this.totalDayData)
-                this.graphDataTopic = this.getCountData(this.topicDayData)
-                this.graphLabel = this.dayRange
-                this.dateState = 2
-                this.fillData()
-                break;
-            // case 'day':
-            //     this.setData(this.totalDayData, this.topicDayData)
-            //     this.graphLabel = this.selectDay
-            //     this.dateState = 3
-            //     break;
-            default:
-                window.alert('error about pushDateBtn()')
-          }
-          this.date = val
-          this.fillData()
-      }
-    },
-    watch: {
-        selectYear:{
-            handler(){
-                switch(this.dataState){
-                    case 1:
-                        if(this.selectYear > 0){
-                            this.pushTopicBtn(this.topic)
-                            break;
-                        } else{
-                            break;
-                        }
-                    case 2:
-                        if(this.selectYear > 0 && this.selectMonth > 0){
-                            this.pushTopicBtn(this.topic)
-                            break;
-                        } else{
-                            break;
-                        }
-                    case 3:
-                        if(this.selectYear > 0 && this.selectMonth > 0 && this.selectDay > 0){
-                            this.pushTopicBtn(this.topic)
-                            break;
-                        } else{
-                            break;
-                        }
-                }
-            }
-        },
-        selectMonth:{
-            handler(){
-                this.dayRange.length = 0
-                this.totalDayData.filter(data => {
-                    if(data.date.substring(4, 6) ==  this.selectMonth && this.dayRange.includes(data.date.substring(6, 8)) == false){
-                        this.dayRange.push(data.date.substring(6, 8))
-                    }
+        async getMonthData() {
+            this.load = false
+            const ChartData = JSON.parse(JSON.stringify(this.barChartData))
+            for await (const item of this.$store.state.chips) {
+                this.axios
+                .get(encodeURI(this.getUrl('https://mongo-fastapi01.herokuapp.com/api/count-hashtags/months', item)))
+                .then((response) => {
+                    ChartData.datasets.push(this.makeGraphTemplateData(item, '#14FFD4', false, this.makeGraphData(response.data), '#14FFD4', 'line', 'y-axis-2'))
                 })
-                this.setMonth(this.selectMonth)
-                this.fillData()
+                .catch((e) => {
+                    console.log(e)
+                })
             }
+            await this.axios
+            .get(encodeURI(this.getUrl('https://mongo-fastapi01.herokuapp.com/api/count-hashtags/months', this.getTotalTagDatas(this.$store.state.chips))))
+            .then((response) => {
+                ChartData.datasets.push(this.makeGraphTemplateData(this.getTotalTagDatas(this.$store.state.chips), '#FF7A6B', false, this.makeGraphData(response.data), '#FF7A6B', 'line', 'y-axis-1'))
+            })
+            .catch((e) => {
+                console.log(e)
+            })
+            this.chart = ChartData
         },
-        selectDay:{
-            handler(){
-                this.fillData()
+        async getDateData() {
+            this.load = false
+            const ChartData = JSON.parse(JSON.stringify(this.barChartData))
+            for await (const item of this.$store.state.chips) {
+                this.axios
+                .get(encodeURI(this.getUrl('https://mongo-fastapi01.herokuapp.com/api/count-hashtags/dates', item)))
+                .then((response) => {
+                    ChartData.datasets.push(this.makeGraphTemplateData(item, '#14FFD4', false, this.makeGraphData(response.data), '#14FFD4', 'line', 'y-axis-2'))
+                })
+                .catch((e) => {
+                    console.log(e)
+                })
             }
+            await this.axios
+            .get(encodeURI(this.getUrl('https://mongo-fastapi01.herokuapp.com/api/count-hashtags/dates', this.getTotalTagDatas(this.$store.state.chips))))
+            .then((response) => {
+                ChartData.datasets.push(this.makeGraphTemplateData(this.getTotalTagDatas(this.$store.state.chips), '#FF7A6B', false, this.makeGraphData(response.data), '#FF7A6B', 'line', 'y-axis-1'))
+            })
+            .catch((e) => {
+                console.log(e)
+            })
+            this.chart = ChartData
+        },
+        getTotalTagDatas(val){
+            let tagstring = ''
+            if (val.length == 0) {
+                return
+            }
+            for (let i = 0, length = val.length; i < length; i++){
+                if (i === (length - 1)) {
+                    tagstring += val[i]
+                } else {
+                    tagstring += val[i] + '|'
+                }
+            }  
+            return tagstring
         }
     }
-  }
+}
 </script>
 
-<style>
-    h2{
-        text-align: center;
-    }
-    .topicBtns{
-        text-align: center;
-    }
-    .topicBtn{
-        text-align: center;
-    }
-    .dateBtn{
-        text-align: center;
-        /* color: #d72; */
-    }
-    .small {
+<style scoped>
+    .container{
         max-width: 640px;
-        margin: auto;
-        /* margin:  150px auto; */
-    }
-    .charts{
-        position: relative;
-        margin: 0 auto;
-        width: 90%;
-        max-width: 640px;
-        background-color: #242a3c;
-    }
-    .v-list-item__title {
-        color: black !important;
     }
 </style>

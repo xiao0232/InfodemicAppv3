@@ -6,15 +6,14 @@
         <div class="topicHr">
             <hr>
         </div>
-        <div v-for="(item, i) in tweetDataSet" :key="i" class="tweetList">
+        <div v-for="(item, i) in allTweetData.slice(getPageStart(pageNm), getPageEnd(pageNm))" :key="i" class="tweetList">
             <div class="tweetImg">
-            </div>
-            <div class="tweetDispName">
-                <!-- {{item.user_screen_name}} -->
-                Test
             </div>
             <div class="tweetAddress">
                 ＠{{item.user_screen_name}}
+            </div>
+            <div class="tweetRT">
+                {{item.retweets_count}} Retweeted
             </div>
             <div class="tweetText">
                 {{item.text}}
@@ -22,12 +21,9 @@
             <!-- <div v-for="(tags, i) of item.hashtags" :key="i" class="tweetTags">
                 #{{tags}}
             </div> -->
-            <div class="tweetRT">
-                number of RT >>> {{item.retweets_count}}
-            </div>
             <hr>
         </div>
-        <!-- <v-btn @click="test()"></v-btn> -->
+        <v-pagination v-model="pageNm" :length="getPageLength()" color="#AAAAAA" style="text-color"></v-pagination>
     </div>
 </template>
 
@@ -35,14 +31,15 @@
 export default {
     data:() => ({
         topic: "Face Mask",
-        tweetDataSet: [],
+        allTweetData: [],
         month: 0,
+        pageNm: 1,
     }),
     async created() {
         await this.axios
-            .get('https://mongo-fastapi01.herokuapp.com/api/get-tweets/?n=10&sdate=20201215')
+            .get('https://mongo-fastapi01.herokuapp.com/api/get-tweets/?n=30&sdate=20200215')
             .then((response) => {
-                this.tweetDataSet = response.data
+                this.allTweetData = response.data
             })
             .catch((e) => {
                 console.log(e)
@@ -50,11 +47,11 @@ export default {
         this.month = this.$store.state.month
     },
     methods:{
-        updateTweet(val){
+        updateTweet(month){
             this.axios
-            .get('https://mongo-fastapi01.herokuapp.com/api/get-tweets/?n=10&sdate=2020' + val + "01")
+            .get('https://mongo-fastapi01.herokuapp.com/api/get-tweets/?n=30&sdate=2020' + month + "01")
             .then((response) => {
-                this.tweetDataSet = response.data
+                this.allTweetData = response.data
             })
             .catch((e) => {
                 console.log(e)
@@ -66,11 +63,26 @@ export default {
             }else {
                 return val
             }
+        },
+        watchMonthChange(){
+            this.$store.watch(() => this.$store.getters.getMonth,
+            id => this.updateTweet(this.getMonthNumber(id))
+            );
+        },
+        getPageLength(){
+            return Math.ceil(this.allTweetData.length / 20)
+        },
+        getPageStart(val){
+            return (val - 1) * 20
+        },
+        getPageEnd(val){
+            return val * 20
         }
     },
     mounted() {
-        this.$store.watch(() => this.$store.getters.getMonth,
-            id => this.updateTweet(this.getMonthNumber(id))
+        this.watchMonthChange()
+        this.$store.watch(() => this.$store.getters.getShowDate,
+            newValue => console.log('change to ', newValue)
         );
     },
 }
@@ -94,12 +106,23 @@ export default {
     .header{
         position: relative;
         text-align: center;
+        padding-top: 10px;
+        padding-bottom: 10px;
+        margin-left: 5%;
+        border-left: 4px solid #ec2;
     }
     .tweetDispName{
         float: left;
+        font-size: 18px;
     }
     .tweetAddress{
-        /* float: left; */
+        float: left;
+        font-size: 18px;
+    }
+    .tweetRT{
+        position: relative;
+        text-align: right;
+        font-size: 18px;
     }
     .tweetText{
         position: relative;
@@ -109,6 +132,14 @@ export default {
     .topicHr{
         margin: auto;
         width: 90%;
+    }
+    .pageBtns{
+        text-align: center;
+    }
+    .pageBtn{
+        margin-left: 5px;
+        margin-right: 5px;
+        margin-bottom: 15px;
     }
     hr{
         margin-bottom: 15px;

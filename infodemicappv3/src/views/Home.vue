@@ -1,14 +1,13 @@
 <template>
   <div class="home">
-    <h1>
-      Infodemic
-    </h1>
+    <head-chips></head-chips>
     <graph></graph>
     <tweet></tweet>
   </div>
 </template>
 
 <script>
+import HeadChips from '@/components/headChips.vue'
 import Graph from '../components/Graph.vue'
 import Tweet from '../components/Tweet'
 
@@ -17,6 +16,7 @@ export default {
   components: {
     Graph,
     Tweet,
+    HeadChips,
   },
   methods: {
   }
@@ -24,7 +24,4 @@ export default {
 </script>
 
 <style scoped>
-  h1{
-    text-align: center;
-  }
 </style>
