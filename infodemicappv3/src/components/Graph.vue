@@ -1,6 +1,11 @@
 <template>
-    <div style="width:100%">
-        <line-chart class="container" :chart-data="chart" :options="complexChartOption" v-if="load"></line-chart>
+    <div>
+        <div v-if="!getApi" class="progressCircle">
+            <v-progress-circular indeterminate color="white"></v-progress-circular>
+        </div>
+        <div style="width:100%" v-else>
+            <line-chart class="container" :chart-data="chart" :options="complexChartOption" v-if="load"></line-chart>
+        </div>
     </div>
 </template>
 
@@ -13,6 +18,7 @@ export default {
     },
     data() {
         return {
+            getApi: false,
             load: false,
             graphTemplateData: {
                 label: '',
@@ -41,9 +47,9 @@ export default {
                         type: "linear",
                         position: "left",
                         ticks: {
-                            max: 500000,
+                            max: 800000,
                             min: 0,
-                            stepSize: 100000
+                            stepSize: 160000
                         }
                     },{
                         id: "y-axis-2",
@@ -65,9 +71,9 @@ export default {
                         type: "linear",
                         position: "left",
                         ticks: {
-                            max: 50000,
+                            max: 80000,
                             min: 0,
-                            stepSize: 10000
+                            stepSize: 16000
                         }
                     },{
                         id: "y-axis-2",
@@ -96,6 +102,7 @@ export default {
                 ChartData.datasets.push(this.makeGraphTemplateData('Covid-19', '#14FFD4', false, this.makeGraphData(response.data), '#14FFD4', 'line', 'y-axis-2'))
                 this.chart = ChartData
                 this.load = true
+                this.getApi = true
             })
             .catch((e) => {
                 console.log(e)
@@ -108,10 +115,12 @@ export default {
                     this.barChartData = this.yearChartData
                     await this.getMonthData()
                     this.load = true
+                    this.getApi = true
                 } else if (this.$store.state.showDate == 'month') {
                     this.barChartData = this.monthChartData
                     await this.getDateData()
                     this.load = true
+                    this.getApi = true
                 }
             }
         )
@@ -122,11 +131,13 @@ export default {
                     this.complexChartOption = this.yearChartOption
                     await this.getMonthData()
                     this.load = true
+                    this.getApi = true
                 } else if (this.$store.state.showDate == 'month') {
                     this.barChartData = this.monthChartData
                     this.complexChartOption = this.monthChartOption
                     await this.getDateData()
                     this.load = true
+                    this.getApi = true
                 }
             }
         )
@@ -170,7 +181,7 @@ export default {
             await this.axios
             .get(encodeURI(this.getUrl('https://mongo-fastapi01.herokuapp.com/api/count-hashtags/months', this.getTotalTagDatas(this.$store.state.chips))))
             .then((response) => {
-                ChartData.datasets.push(this.makeGraphTemplateData(this.getTotalTagDatas(this.$store.state.chips), '#FF7A6B', false, this.makeGraphData(response.data), '#FF7A6B', 'line', 'y-axis-1'))
+                ChartData.datasets.push(this.makeGraphTemplateData(this.getTotalTagTitle(this.$store.state.chips), '#FF7A6B', false, this.makeGraphData(response.data), '#FF7A6B', 'line', 'y-axis-1'))
             })
             .catch((e) => {
                 console.log(e)
@@ -193,7 +204,7 @@ export default {
             await this.axios
             .get(encodeURI(this.getUrl('https://mongo-fastapi01.herokuapp.com/api/count-hashtags/dates', this.getTotalTagDatas(this.$store.state.chips))))
             .then((response) => {
-                ChartData.datasets.push(this.makeGraphTemplateData(this.getTotalTagDatas(this.$store.state.chips), '#FF7A6B', false, this.makeGraphData(response.data), '#FF7A6B', 'line', 'y-axis-1'))
+                ChartData.datasets.push(this.makeGraphTemplateData(this.getTotalTagTitle(this.$store.state.chips), '#FF7A6B', false, this.makeGraphData(response.data), '#FF7A6B', 'line', 'y-axis-1'))
             })
             .catch((e) => {
                 console.log(e)
@@ -213,7 +224,21 @@ export default {
                 }
             }  
             return tagstring
-        }
+        },
+        getTotalTagTitle(val){
+            let tagstring = ''
+            if (val.length == 0) {
+                return
+            }
+            for (let i = 0, length = val.length; i < length; i++){
+                if (i === (length - 1)) {
+                    tagstring += val[i]
+                } else {
+                    tagstring += val[i] + ' or '
+                }
+            }  
+            return tagstring
+        },
     }
 }
 </script>
@@ -221,5 +246,8 @@ export default {
 <style scoped>
     .container{
         max-width: 640px;
+    }
+    .progressCircle{
+        text-align: center;
     }
 </style>
