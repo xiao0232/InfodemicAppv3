@@ -14,12 +14,12 @@
                 <v-col>
                     <v-select :items="monthDay" outlined v-model="selectRange" background-color="white"></v-select>
                 </v-col>
-                <v-col v-if="this.$store.state.showDate == 'year'">
+                <!-- <v-col v-if="this.$store.state.showDate == 'year'">
                     <v-select :items="yearRange" outlined v-model="selectYear" background-color="white"></v-select>
                 </v-col>
                 <v-col v-if="this.$store.state.showDate == 'month'">
                     <v-select :items="monthRange" outlined v-model="selectMonth" background-color="white"></v-select>
-                </v-col>
+                </v-col> -->
             </v-row>
         </v-container>
     </div>
@@ -126,9 +126,7 @@ export default {
         max-width: 640px;
     }
     .topics{
-        width: 75%;
-    }
-    .date{
-        width: 25%;
+        height: 100%;
+        width: 100%;
     }
 </style>
