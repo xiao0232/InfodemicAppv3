@@ -51,32 +51,6 @@ export default {
             const result = args.join('/')
             return result
         },
-        async getMonthData(val) {
-            if (val.length == 0) {
-                this.$store.commit('setMonthTotalTagDatas', {})
-            } else {
-                await this.axios
-                .get(encodeURI(this.getUrl('https://mongo-fastapi01.herokuapp.com/api/count-hashtags/months', val)))
-                .then((response) => {
-                    // this.$store.commit('setMonthTotalTagDatas', response.data)
-                    return response.data
-                })
-                .catch((e) => {
-                    console.log(e)
-                })
-            }
-        },
-        async getDateData(val) {
-            await this.axios
-            .get(encodeURI(this.getUrl('https://mongo-fastapi01.herokuapp.com/api/count-hashtags/dates' ,val)))
-            .then((response) => {
-                // this.$store.commit('setDayTotalTagDatas', response.data)
-                return response.data
-            })
-            .catch((e) => {
-                console.log(e)
-            })
-        },
         remove (item) {
             this.chips.splice(this.chips.indexOf(item), 1)
             this.chips = [...this.chips]
@@ -84,32 +58,11 @@ export default {
         setChips(val){
             this.$store.commit('setChips', val)
         },
-        getTotalTagDatas(val){
-            let tagstring = ''
-            if (val.length == 0) {
-                return
-            }
-            for (let i = 0, length = val.length; i < length; i++){
-                if (i === (length - 1)) {
-                    tagstring += val[i]
-                } else {
-                    tagstring += val[i] + '|'
-                }
-            }
-            if(this.$store.state.showDate == 'year'){
-                this.getMonthData(tagstring)
-            } else if (this.$store.state.showDate == 'month') {
-                this.getDateData(tagstring)
-            } else {
-                console.log('error')
-            }
-        }
     },
     watch: {
         chips: {
             handler() {
                 this.setChips(this.chips)
-                this.getTotalTagDatas(this.$store.state.chips)
             }
         },
         selectRange: {

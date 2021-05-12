@@ -24,7 +24,7 @@
                 </div>
                 <hr>
             </div>
-            <v-pagination v-model="pageNm" :length="getPageLength()" color="#AAAAAA" style="text-color"></v-pagination>
+            <v-pagination v-model="pageNm" :length="getPageLength" color="#AAAAAA" style="text-color"></v-pagination>
         </div>
     </div>
 </template>
@@ -38,10 +38,45 @@ export default {
         pageNm: 1,
         getApi: false,
     }),
+    computed: {
+        getTotalTagDatas(){
+            const chips = this.$store.state.chips
+            let tagstring = ''
+            if (chips.length == 0) {
+                return
+            }
+            for (let i = 0, length = chips.length; i < length; i++){
+                if (i === (length - 1)) {
+                    tagstring += chips[i]
+                } else {
+                    tagstring += chips[i] + '|'
+                }
+            }  
+            return tagstring
+        },
+        getTotalTagTitle(){
+            const chips = this.$store.state.chips
+            let tagstring = ''
+            if (chips.length == 0) {
+                return
+            }
+            for (let i = 0, length = chips.length; i < length; i++){
+                if (i === (length - 1)) {
+                    tagstring += chips[i]
+                } else {
+                    tagstring += chips[i] + ','
+                }
+            }  
+            return tagstring
+        },
+        getPageLength(){
+            return Math.ceil(this.allTweetData.length / 20)
+        },
+    },
     async created() {
         this.getApi = false
             await this.axios
-            .get(encodeURI(this.getUrl('https://mongo-fastapi01.herokuapp.com/api/get-tweets', 'Covid-19?n=200')))
+            .get(encodeURI('https://mongo-fastapi01.herokuapp.com/api/get-tweets/Covid-19?n=200'))
             .then((response) => {
                 this.allTweetData = response.data
                 this.getApi = true
@@ -54,52 +89,21 @@ export default {
         async getTweetData(){
             this.getApi = false
             await this.axios
-            .get(encodeURI(this.getUrl('https://mongo-fastapi01.herokuapp.com/api/get-tweets', this.getTotalTagDatas(this.$store.state.chips) + '?n=200')))
+            .get(encodeURI(this.getUrl('https://mongo-fastapi01.herokuapp.com/api/get-tweets', this.getTotalTagDatas + '?n=200')))
             .then((response) => {
                 this.allTweetData = response.data
-                this.topic = this.getTotalTagTitle(this.$store.state.chips)
+                this.topic = this.getTotalTagTitle
                 this.getApi = true
             })
             .catch((e) => {
                 console.log(e)
             })
         },
-        getPageLength(){
-            return Math.ceil(this.allTweetData.length / 20)
-        },
         getPageStart(val){
             return (val - 1) * 20
         },
         getPageEnd(val){
             return val * 20
-        },
-        getTotalTagDatas(val){
-            let tagstring = ''
-            if (val.length == 0) {
-                return
-            }
-            for (let i = 0, length = val.length; i < length; i++){
-                if (i === (length - 1)) {
-                    tagstring += val[i]
-                } else {
-                    tagstring += val[i] + '|'
-                }
-            }  
-            return tagstring
-        },
-        getTotalTagTitle(val){
-            let tagstring = ''
-            if (val.length == 0) {
-                return
-            }
-            for (let i = 0, length = val.length; i < length; i++){
-                if (i === (length - 1)) {
-                    tagstring += val[i]
-                } else {
-                    tagstring += val[i] + ','
-                }
-            }  
-            return tagstring
         },
         getUrl (...args) {
             const result = args.join('/')

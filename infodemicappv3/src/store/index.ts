@@ -6,7 +6,6 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   state: {
     topics: ['FaceMask', 'Covid-19', 'vaccine', 'Yahoo!News'], 
-    // monthRange: ['2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'],
     monthRange: ['2'],
     chips: [],
     topic: 'Covid-19',
