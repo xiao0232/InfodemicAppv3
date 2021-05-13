@@ -192,24 +192,26 @@ export default {
         async getGraphData(val) {
             this.getApi = false
             const ChartData = JSON.parse(JSON.stringify(this.barChartData))
-            for await (const item of this.$store.state.chips) {
-                this.axios
-                .get(encodeURI(this.getUrl('https://mongo-fastapi01.herokuapp.com/api/count-hashtags', val, item)))
+            if(this.$store.state.chips.length !== 0){
+                for await (const item of this.$store.state.chips) {
+                    this.axios
+                    .get(encodeURI(this.getUrl('https://mongo-fastapi01.herokuapp.com/api/count-hashtags', val, item)))
+                    .then((response) => {
+                        ChartData.datasets.push(this.makeGraphTemplateData(item, '#14FFD4', false, this.makeGraphData(response.data), '#14FFD4', 'line', 'y-axis-2'))
+                    })
+                    .catch((e) => {
+                        console.log(e)
+                    })
+                }
+                await this.axios
+                .get(encodeURI(this.getUrl('https://mongo-fastapi01.herokuapp.com/api/count-hashtags', val, this.getTotalTagDatas)))
                 .then((response) => {
-                    ChartData.datasets.push(this.makeGraphTemplateData(item, '#14FFD4', false, this.makeGraphData(response.data), '#14FFD4', 'line', 'y-axis-2'))
+                    ChartData.datasets.push(this.makeGraphTemplateData(this.getTotalTagTitle, '#FF7A6B', false, this.makeGraphData(response.data), '#FF7A6B', 'line', 'y-axis-1'))
                 })
                 .catch((e) => {
                     console.log(e)
                 })
             }
-            await this.axios
-            .get(encodeURI(this.getUrl('https://mongo-fastapi01.herokuapp.com/api/count-hashtags', val, this.getTotalTagDatas)))
-            .then((response) => {
-                ChartData.datasets.push(this.makeGraphTemplateData(this.getTotalTagTitle, '#FF7A6B', false, this.makeGraphData(response.data), '#FF7A6B', 'line', 'y-axis-1'))
-            })
-            .catch((e) => {
-                console.log(e)
-            })
             this.chart = ChartData
         },
     }
