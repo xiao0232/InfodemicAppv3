@@ -4,7 +4,7 @@
             <v-progress-circular indeterminate color="white"></v-progress-circular>
         </div>
         <div style="width:100%" v-else>
-            <line-chart class="container" :chart-data="chart" :options="complexChartOption" v-if="load"></line-chart>
+            <line-chart class="container" :chart-data="chart" :options="complexChartOption"></line-chart>
         </div>
     </div>
 </template>
@@ -19,7 +19,6 @@ export default {
     data() {
         return {
             getApi: false,
-            load: false,
             graphTemplateData: {
                 label: '',
                 data: [],
@@ -90,18 +89,47 @@ export default {
             complexChartOption: {}
         }
     },
+    computed: {
+        getTotalTagDatas(){
+            let tagstring = ''
+            const chips = this.$store.state.chips
+            if (chips.length == 0) {
+                return
+            }
+            for (let i = 0, length = chips.length; i < length; i++){
+                if (i === (length - 1)) {
+                    tagstring += chips[i]
+                } else {
+                    tagstring += chips[i] + '|'
+                }
+            }  
+            return tagstring
+        },
+        getTotalTagTitle(){
+            let tagstring = ''
+            const chips = this.$store.state.chips
+            if (chips.length == 0) {
+                return
+            }
+            for (let i = 0, length = chips.length; i < length; i++){
+                if (i === (length - 1)) {
+                    tagstring += chips[i]
+                } else {
+                    tagstring += chips[i] + ' or '
+                }
+            }  
+            return tagstring
+        },
+    },
     async created() {
         this.barChartData = this.yearChartData
-        this.load = false
         const ChartData = JSON.parse(JSON.stringify(this.barChartData))
-        this.barChartData = this.yearChartData
         this.complexChartOption = this.yearChartOption
         await this.axios
             .get(encodeURI('https://mongo-fastapi01.herokuapp.com/api/count-hashtags/months/Covid-19'))
             .then((response) => {
                 ChartData.datasets.push(this.makeGraphTemplateData('Covid-19', '#14FFD4', false, this.makeGraphData(response.data), '#14FFD4', 'line', 'y-axis-2'))
                 this.chart = ChartData
-                this.load = true
                 this.getApi = true
             })
             .catch((e) => {
@@ -113,13 +141,11 @@ export default {
             async () => {
                 if (this.$store.state.showDate == 'year') {
                     this.barChartData = this.yearChartData
-                    await this.getMonthData()
-                    this.load = true
+                    await this.getGraphData('months')
                     this.getApi = true
                 } else if (this.$store.state.showDate == 'month') {
                     this.barChartData = this.monthChartData
-                    await this.getDateData()
-                    this.load = true
+                    await this.getGraphData('dates')
                     this.getApi = true
                 }
             }
@@ -129,14 +155,12 @@ export default {
                 if (this.$store.state.showDate == 'year') {
                     this.barChartData = this.yearChartData
                     this.complexChartOption = this.yearChartOption
-                    await this.getMonthData()
-                    this.load = true
+                    await this.getGraphData('months')
                     this.getApi = true
                 } else if (this.$store.state.showDate == 'month') {
                     this.barChartData = this.monthChartData
                     this.complexChartOption = this.monthChartOption
-                    await this.getDateData()
-                    this.load = true
+                    await this.getGraphData('dates')
                     this.getApi = true
                 }
             }
@@ -165,79 +189,30 @@ export default {
             const result = args.join('/')
             return result
         },
-        async getMonthData() {
-            this.load = false
+        async getGraphData(val) {
+            this.getApi = false
             const ChartData = JSON.parse(JSON.stringify(this.barChartData))
-            for await (const item of this.$store.state.chips) {
-                this.axios
-                .get(encodeURI(this.getUrl('https://mongo-fastapi01.herokuapp.com/api/count-hashtags/months', item)))
+            if(this.$store.state.chips.length !== 0){
+                for await (const item of this.$store.state.chips) {
+                    this.axios
+                    .get(encodeURI(this.getUrl('https://mongo-fastapi01.herokuapp.com/api/count-hashtags', val, item)))
+                    .then((response) => {
+                        ChartData.datasets.push(this.makeGraphTemplateData(item, '#14FFD4', false, this.makeGraphData(response.data), '#14FFD4', 'line', 'y-axis-2'))
+                    })
+                    .catch((e) => {
+                        console.log(e)
+                    })
+                }
+                await this.axios
+                .get(encodeURI(this.getUrl('https://mongo-fastapi01.herokuapp.com/api/count-hashtags', val, this.getTotalTagDatas)))
                 .then((response) => {
-                    ChartData.datasets.push(this.makeGraphTemplateData(item, '#14FFD4', false, this.makeGraphData(response.data), '#14FFD4', 'line', 'y-axis-2'))
+                    ChartData.datasets.push(this.makeGraphTemplateData(this.getTotalTagTitle, '#FF7A6B', false, this.makeGraphData(response.data), '#FF7A6B', 'line', 'y-axis-1'))
                 })
                 .catch((e) => {
                     console.log(e)
                 })
             }
-            await this.axios
-            .get(encodeURI(this.getUrl('https://mongo-fastapi01.herokuapp.com/api/count-hashtags/months', this.getTotalTagDatas(this.$store.state.chips))))
-            .then((response) => {
-                ChartData.datasets.push(this.makeGraphTemplateData(this.getTotalTagTitle(this.$store.state.chips), '#FF7A6B', false, this.makeGraphData(response.data), '#FF7A6B', 'line', 'y-axis-1'))
-            })
-            .catch((e) => {
-                console.log(e)
-            })
             this.chart = ChartData
-        },
-        async getDateData() {
-            this.load = false
-            const ChartData = JSON.parse(JSON.stringify(this.barChartData))
-            for await (const item of this.$store.state.chips) {
-                this.axios
-                .get(encodeURI(this.getUrl('https://mongo-fastapi01.herokuapp.com/api/count-hashtags/dates', item)))
-                .then((response) => {
-                    ChartData.datasets.push(this.makeGraphTemplateData(item, '#14FFD4', false, this.makeGraphData(response.data), '#14FFD4', 'line', 'y-axis-2'))
-                })
-                .catch((e) => {
-                    console.log(e)
-                })
-            }
-            await this.axios
-            .get(encodeURI(this.getUrl('https://mongo-fastapi01.herokuapp.com/api/count-hashtags/dates', this.getTotalTagDatas(this.$store.state.chips))))
-            .then((response) => {
-                ChartData.datasets.push(this.makeGraphTemplateData(this.getTotalTagTitle(this.$store.state.chips), '#FF7A6B', false, this.makeGraphData(response.data), '#FF7A6B', 'line', 'y-axis-1'))
-            })
-            .catch((e) => {
-                console.log(e)
-            })
-            this.chart = ChartData
-        },
-        getTotalTagDatas(val){
-            let tagstring = ''
-            if (val.length == 0) {
-                return
-            }
-            for (let i = 0, length = val.length; i < length; i++){
-                if (i === (length - 1)) {
-                    tagstring += val[i]
-                } else {
-                    tagstring += val[i] + '|'
-                }
-            }  
-            return tagstring
-        },
-        getTotalTagTitle(val){
-            let tagstring = ''
-            if (val.length == 0) {
-                return
-            }
-            for (let i = 0, length = val.length; i < length; i++){
-                if (i === (length - 1)) {
-                    tagstring += val[i]
-                } else {
-                    tagstring += val[i] + ' or '
-                }
-            }  
-            return tagstring
         },
     }
 }
