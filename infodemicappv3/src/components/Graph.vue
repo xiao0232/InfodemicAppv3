@@ -3,9 +3,9 @@
         <div v-if="!getApi" class="progressCircle">
             <v-progress-circular indeterminate color="white"></v-progress-circular>
         </div>
-        <div style="width:100%" v-else>
-            <line-chart class="container" :chart-data="chart" :options="complexChartOption"></line-chart>
-        </div>
+        <template v-for="(item, id) in chart" v-else>
+            <line-chart class="container" :chart-data="item" :options="complexChartOption" :key="id"></line-chart>
+        </template>
     </div>
 </template>
 
@@ -135,6 +135,7 @@ export default {
             .catch((e) => {
                 console.log(e)
             })
+        console.log(this.chart)
     },
     mounted() {
         this.$store.watch((state, getters) => getters.getChips,
