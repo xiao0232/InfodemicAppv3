@@ -86,7 +86,8 @@ export default {
                     }]
                 }
             },
-            complexChartOption: {}
+            complexChartOption: {},
+            graphColor: ''
         }
     },
     computed: {
@@ -128,7 +129,8 @@ export default {
         await this.axios
             .get(encodeURI('https://mongo-fastapi01.herokuapp.com/api/count-hashtags/months/Covid-19'))
             .then((response) => {
-                ChartData.datasets.push(this.makeGraphTemplateData('Covid-19', '#14FFD4', false, this.makeGraphData(response.data), '#14FFD4', 'line', 'y-axis-2'))
+                this.getrandomColor()
+                ChartData.datasets.push(this.makeGraphTemplateData('Covid-19', this.graphColor, false, this.makeGraphData(response.data), this.graphColor, 'line', 'y-axis-2'))
                 this.chart = ChartData
                 this.getApi = true
             })
@@ -167,6 +169,9 @@ export default {
         )
     }, 
     methods: {
+        getrandomColor(){
+            this.graphColor = "rgb(" + (~~(256 * Math.random())) + ", " + (~~(256 * Math.random())) + ", " + (~~(256 * Math.random())) + ")" ;
+        },
         makeGraphTemplateData(label, backgroundColor, fill, data, borderColor, type, yAxisID){
             const graph = JSON.parse(JSON.stringify(this.graphTemplateData))
             graph.label = label
@@ -197,7 +202,8 @@ export default {
                     this.axios
                     .get(encodeURI(this.getUrl('https://mongo-fastapi01.herokuapp.com/api/count-hashtags', val, item)))
                     .then((response) => {
-                        ChartData.datasets.push(this.makeGraphTemplateData(item, '#14FFD4', false, this.makeGraphData(response.data), '#14FFD4', 'line', 'y-axis-2'))
+                        this.getrandomColor()
+                        ChartData.datasets.push(this.makeGraphTemplateData(item, this.graphColor, false, this.makeGraphData(response.data), this.graphColor, 'line', 'y-axis-2'))
                     })
                     .catch((e) => {
                         console.log(e)
@@ -206,7 +212,8 @@ export default {
                 await this.axios
                 .get(encodeURI(this.getUrl('https://mongo-fastapi01.herokuapp.com/api/count-hashtags', val, this.getTotalTagDatas)))
                 .then((response) => {
-                    ChartData.datasets.push(this.makeGraphTemplateData(this.getTotalTagTitle, '#FF7A6B', false, this.makeGraphData(response.data), '#FF7A6B', 'line', 'y-axis-1'))
+                    this.getrandomColor()
+                    ChartData.datasets.push(this.makeGraphTemplateData(this.getTotalTagTitle, this.graphColor, false, this.makeGraphData(response.data), this.graphColor, 'line', 'y-axis-1'))
                 })
                 .catch((e) => {
                     console.log(e)
