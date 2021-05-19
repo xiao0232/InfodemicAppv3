@@ -40,49 +40,34 @@ export default {
             chart: {},
             yearChartOption: {
                 responsive: true,
+                stacked: true,
                 scales: {
+                    xAxes: [{
+                        stacked: true
+                    }],
                     yAxes: [{
                         id: "y-axis-1",
-                        type: "linear",
+                        stacked: true,
                         position: "left",
-                        ticks: {
-                            max: 800000,
-                            min: 0,
-                            stepSize: 160000
-                        }
                     },{
                         id: "y-axis-2",
-                        type: "linear",
+                        stacked: true,
                         position: "right",
-                        ticks: {
-                            max: 400000,
-                            min: 0,
-                            stepSize: 80000
-                        }
                     }]
                 }
             },
             monthChartOption: {
                 responsive: true,
+                // stacked: true,
                 scales: {
                     yAxes: [{
                         id: "y-axis-1",
-                        type: "linear",
+                        stacked: true,
                         position: "left",
-                        ticks: {
-                            max: 80000,
-                            min: 0,
-                            stepSize: 16000
-                        }
                     },{
                         id: "y-axis-2",
-                        type: "linear",
+                        stacked: true,
                         position: "right",
-                        ticks: {
-                            max: 20000,
-                            min: 0,
-                            stepSize: 4000
-                        }
                     }]
                 }
             },
@@ -130,7 +115,7 @@ export default {
             .get(encodeURI('https://mongo-fastapi01.herokuapp.com/api/count-hashtags/months/Covid-19'))
             .then((response) => {
                 this.getrandomColor()
-                ChartData.datasets.push(this.makeGraphTemplateData('Covid-19', this.graphColor, false, this.makeGraphData(response.data), this.graphColor, 'line', 'y-axis-2'))
+                ChartData.datasets.push(this.makeGraphTemplateData('Covid-19', this.graphColor, false, this.makeGraphData(response.data), this.graphColor, 'bar', 'y-axis-2'))
                 this.chart = ChartData
                 this.getApi = true
             })
@@ -203,7 +188,7 @@ export default {
                     .get(encodeURI(this.getUrl('https://mongo-fastapi01.herokuapp.com/api/count-hashtags', val, item)))
                     .then((response) => {
                         this.getrandomColor()
-                        ChartData.datasets.push(this.makeGraphTemplateData(item, this.graphColor, false, this.makeGraphData(response.data), this.graphColor, 'line', 'y-axis-2'))
+                        ChartData.datasets.push(this.makeGraphTemplateData(item, this.graphColor, false, this.makeGraphData(response.data), this.graphColor, 'bar', 'y-axis-2'))
                     })
                     .catch((e) => {
                         console.log(e)
@@ -213,7 +198,7 @@ export default {
                 .get(encodeURI(this.getUrl('https://mongo-fastapi01.herokuapp.com/api/count-hashtags', val, this.getTotalTagDatas)))
                 .then((response) => {
                     this.getrandomColor()
-                    ChartData.datasets.push(this.makeGraphTemplateData(this.getTotalTagTitle, this.graphColor, false, this.makeGraphData(response.data), this.graphColor, 'line', 'y-axis-1'))
+                    ChartData.datasets.push(this.makeGraphTemplateData(this.getTotalTagTitle, "rgb(0, 0, 0)", false, this.makeGraphData(response.data), "rgb(0, 0, 0)", 'line', 'y-axis-1'))
                 })
                 .catch((e) => {
                     console.log(e)
