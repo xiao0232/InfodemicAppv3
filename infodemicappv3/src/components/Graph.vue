@@ -37,7 +37,7 @@ export default {
                 datasets: []
             },
             barChartData: {},
-            chart: {},
+            chart: [],
             yearChartOption: {
                 responsive: true,
                 scales: {
@@ -45,20 +45,6 @@ export default {
                         id: "y-axis-1",
                         type: "linear",
                         position: "left",
-                        ticks: {
-                            max: 800000,
-                            min: 0,
-                            stepSize: 160000
-                        }
-                    },{
-                        id: "y-axis-2",
-                        type: "linear",
-                        position: "right",
-                        ticks: {
-                            max: 400000,
-                            min: 0,
-                            stepSize: 80000
-                        }
                     }]
                 }
             },
@@ -69,20 +55,6 @@ export default {
                         id: "y-axis-1",
                         type: "linear",
                         position: "left",
-                        ticks: {
-                            max: 80000,
-                            min: 0,
-                            stepSize: 16000
-                        }
-                    },{
-                        id: "y-axis-2",
-                        type: "linear",
-                        position: "right",
-                        ticks: {
-                            max: 20000,
-                            min: 0,
-                            stepSize: 4000
-                        }
                     }]
                 }
             },
@@ -128,14 +100,14 @@ export default {
         await this.axios
             .get(encodeURI('https://mongo-fastapi01.herokuapp.com/api/count-hashtags/months/Covid-19'))
             .then((response) => {
-                ChartData.datasets.push(this.makeGraphTemplateData('Covid-19', '#14FFD4', false, this.makeGraphData(response.data), '#14FFD4', 'line', 'y-axis-2'))
-                this.chart = ChartData
-                this.getApi = true
+                ChartData.datasets.push(this.makeGraphTemplateData('Covid-19', '#14FFD4', false, this.makeGraphData(response.data), '#14FFD4', 'line', 'y-axis-1'))
+                this.chart.push(ChartData)
             })
             .catch((e) => {
                 console.log(e)
             })
-        console.log(this.chart)
+            console.log(this.chart)
+        this.getApi = true
     },
     mounted() {
         this.$store.watch((state, getters) => getters.getChips,
@@ -191,14 +163,17 @@ export default {
             return result
         },
         async getGraphData(val) {
+            this.chart = []
             this.getApi = false
-            const ChartData = JSON.parse(JSON.stringify(this.barChartData))
+            let ChartData = JSON.parse(JSON.stringify(this.barChartData))
             if(this.$store.state.chips.length !== 0){
                 for await (const item of this.$store.state.chips) {
                     this.axios
                     .get(encodeURI(this.getUrl('https://mongo-fastapi01.herokuapp.com/api/count-hashtags', val, item)))
                     .then((response) => {
-                        ChartData.datasets.push(this.makeGraphTemplateData(item, '#14FFD4', false, this.makeGraphData(response.data), '#14FFD4', 'line', 'y-axis-2'))
+                        ChartData = JSON.parse(JSON.stringify(this.barChartData))
+                        ChartData.datasets.push(this.makeGraphTemplateData(item, '#14FFD4', false, this.makeGraphData(response.data), '#14FFD4', 'line', 'y-axis-1'))
+                        this.chart.push(ChartData) 
                     })
                     .catch((e) => {
                         console.log(e)
@@ -207,13 +182,15 @@ export default {
                 await this.axios
                 .get(encodeURI(this.getUrl('https://mongo-fastapi01.herokuapp.com/api/count-hashtags', val, this.getTotalTagDatas)))
                 .then((response) => {
+                    ChartData = JSON.parse(JSON.stringify(this.barChartData))
                     ChartData.datasets.push(this.makeGraphTemplateData(this.getTotalTagTitle, '#FF7A6B', false, this.makeGraphData(response.data), '#FF7A6B', 'line', 'y-axis-1'))
+                    this.chart.push(ChartData)
                 })
                 .catch((e) => {
                     console.log(e)
                 })
             }
-            this.chart = ChartData
+            // this.chart.push(ChartData) 
         },
     }
 }
