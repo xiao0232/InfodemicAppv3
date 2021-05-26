@@ -58,7 +58,8 @@ export default {
                     }]
                 }
             },
-            complexChartOption: {}
+            complexChartOption: {},
+            graphColor: ''
         }
     },
     computed: {
@@ -140,6 +141,9 @@ export default {
         )
     }, 
     methods: {
+        getrandomColor(){
+            this.graphColor = "rgb(" + (~~(256 * Math.random())) + ", " + (~~(256 * Math.random())) + ", " + (~~(256 * Math.random())) + ")" ;
+        },
         makeGraphTemplateData(label, backgroundColor, fill, data, borderColor, type, yAxisID){
             const graph = JSON.parse(JSON.stringify(this.graphTemplateData))
             graph.label = label
