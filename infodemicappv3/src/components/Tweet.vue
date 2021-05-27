@@ -11,18 +11,7 @@
                 <hr>
             </div>
             <div v-for="(item, i) in allTweetData.slice(getPageStart(pageNm), getPageEnd(pageNm))" :key="i" class="tweetList">
-                <div class="tweetImg">
-                </div>
-                <div class="tweetAddress">
-                    ＠{{item.user_screen_name}}
-                </div>
-                <div class="tweetRT">
-                    {{item.retweets_count}} Retweeted
-                </div>
-                <div class="tweetText">
-                    {{item.text}}
-                </div>
-                <hr>
+                <TweetCard :id=item.id />
             </div>
             <v-pagination v-model="pageNm" :length="getPageLength" color="#AAAAAA" style="text-color"></v-pagination>
         </div>
@@ -30,7 +19,12 @@
 </template>
 
 <script>
+import { Tweet } from 'vue-tweet-embed';
+
 export default {
+    components: {
+        TweetCard: Tweet
+    },
     data:() => ({
         topic: 'Covid-19',
         allTweetData: [],
@@ -76,7 +70,7 @@ export default {
     async created() {
         this.getApi = false
             await this.axios
-            .get(encodeURI('https://mongo-fastapi01.herokuapp.com/api/get-tweets/Covid-19?n=200'))
+            .get(encodeURI('https://mongo-fastapi01.herokuapp.com/api/get-tweets2/Covid-19?n=200'))
             .then((response) => {
                 this.allTweetData = response.data
                 this.getApi = true
@@ -89,7 +83,7 @@ export default {
         async getTweetData(){
             this.getApi = false
             await this.axios
-            .get(encodeURI(this.getUrl('https://mongo-fastapi01.herokuapp.com/api/get-tweets', this.getTotalTagDatas + '?n=200')))
+            .get(encodeURI(this.getUrl('https://mongo-fastapi01.herokuapp.com/api/get-tweets2', this.getTotalTagDatas + '?n=200')))
             .then((response) => {
                 this.allTweetData = response.data
                 this.topic = this.getTotalTagTitle
